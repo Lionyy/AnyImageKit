@@ -54,6 +54,6 @@ struct BundleHelper {
     static func localizedString(key: String, value: String?, table: String?) -> String {
         var value = value
         value = languageBundle?.localizedString(forKey: key, value: value, table: table)
-        return Bundle.main.localizedString(forKey: key, value: value, table: table)
+        return value ?? Bundle.main.localizedString(forKey: key, value: value, table: table)
     }
 }
