@@ -15,6 +15,8 @@ private let toolBarHeight: CGFloat = 56
 protocol AssetPickerViewControllerDelegate: AnyObject {
     
     func assetPickerDidCancel(_ picker: AssetPickerViewController)
+    /// 限制数量判断弹窗显示
+    func assetPickerShouldSelectedAsset(_ picker: AssetPickerViewController, asset: Asset, isUpToLimit: Bool) -> Bool
     func assetPickerDidFinishPicking(_ picker: AssetPickerViewController)
 }
 
@@ -348,6 +350,13 @@ extension AssetPickerViewController {
         guard let cell = sender.superview as? AssetCell else { return }
         guard let idx = collectionView.indexPath(for: cell)?.item else { return }
         let asset = album.assets[idx]
+        
+        if !asset.isSelected, let shouldSelected = delegate?.assetPickerShouldSelectedAsset(self, asset: asset, isUpToLimit:manager.isUpToLimit) {
+            if !shouldSelected {
+                return
+            }
+        }
+        
         if !asset.isSelected && manager.isUpToLimit {
             let message = String(format: BundleHelper.pickerLocalizedString(key: "Select a maximum of %zd photos"), manager.options.selectLimit)
             let alert = UIAlertController(title: BundleHelper.pickerLocalizedString(key: "Alert"), message: message, preferredStyle: .alert)

@@ -12,6 +12,10 @@ import SnapKit
 public protocol ImagePickerControllerDelegate: AnyObject {
     
     func imagePickerDidCancel(_ picker: ImagePickerController)
+    
+    /// 添加回调显示提示弹窗
+    func imagePickerShouldSelectedAsset(_ picker: ImagePickerController, asset: Asset, isUpToLimit: Bool) -> Bool
+    func imagePicker(_ picker: ImagePickerController, didFinishPicking assets: [Asset], useOriginalImage: Bool)
     func imagePicker(_ picker: ImagePickerController, didFinishPicking result: PickerResult)
 }
 
@@ -193,6 +197,11 @@ extension ImagePickerController: AssetPickerViewControllerDelegate {
     
     func assetPickerDidCancel(_ picker: AssetPickerViewController) {
         pickerDelegate?.imagePickerDidCancel(self)
+    }
+    
+    /// 添加回调显示提示弹窗
+    func assetPickerShouldSelectedAsset(_ picker: AssetPickerViewController, asset: Asset, isUpToLimit: Bool) -> Bool {
+        return pickerDelegate?.imagePickerShouldSelectedAsset(self, asset: asset, isUpToLimit: isUpToLimit) ?? true
     }
     
     func assetPickerDidFinishPicking(_ controller: AssetPickerViewController) {

@@ -109,8 +109,18 @@ extension PickerArrowButton {
         if isSelected {
             isSelected = false
         }
+        
+        // 修复过渡效果bug
+        self.label.text = title
+        self.label.sizeToFit()
+        
+        var labelFrame = self.label.frame
+        labelFrame.origin.y = 0
+        labelFrame.size.height = effectView.frame.height
+        
+        self.label.frame = labelFrame
+        
         UIView.animate(withDuration: 0.2) {
-            self.label.text = title
             self.layoutIfNeeded()
         }
         accessibilityLabel = String(format: BundleHelper.pickerLocalizedString(key: "Switch album current album is %@"), title)
