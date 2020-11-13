@@ -190,7 +190,7 @@ extension CaptureFocusView {
             if self.alpha == 1 {
                 UIView.animate(withDuration: 0.25, animations: {
                     self.alpha = self.isAuto ? 0.0 : 0.4
-                }) { (_) in
+                }) { _ in
                     if self.isAuto {
                         self.isAuto = false
                         self.isFocusing = false
@@ -202,7 +202,7 @@ extension CaptureFocusView {
             } else {
                 UIView.animate(withDuration: 0.25, animations: {
                     self.alpha = 0
-                }) { (_) in
+                }) { _ in
                     self.isAuto = false
                     self.isFocusing = false
                     self.stopTimer()
@@ -238,6 +238,7 @@ private final class CaptureFocusRectView: UIView {
     }
     
     private func setupView() {
+        backgroundColor = .clear
         layer.addSublayer(rectLayer)
     }
     

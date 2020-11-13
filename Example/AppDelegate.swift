@@ -24,12 +24,14 @@ extension AppDelegate {
     
     private func setupWindow() {
         let windows = UIWindow(frame: UIScreen.main.bounds)
-        let splitController = UISplitViewController()
-        splitController.preferredDisplayMode = .allVisible
-        let homeController = HomeViewController(style: .grouped)
+        let homeController: HomeViewController
+        if #available(iOS 13.0, *) {
+            homeController = HomeViewController(style: .insetGrouped)
+        } else {
+            homeController = HomeViewController(style: .grouped)
+        }
         let navigationController = UINavigationController(rootViewController: homeController)
-        splitController.viewControllers = [navigationController]
-        windows.rootViewController = splitController
+        windows.rootViewController = navigationController
         windows.makeKeyAndVisible()
         self.window = windows
     }

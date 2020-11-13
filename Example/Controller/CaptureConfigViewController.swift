@@ -21,25 +21,15 @@ final class CaptureConfigViewController: UITableViewController {
     }
     
     private func setupView() {
+        tableView.cellLayoutMarginsFollowReadableWidth = true
         tableView.register(ConfigCell.self, forCellReuseIdentifier: "Cell")
         tableView.tableFooterView = UIView(frame: .zero)
     }
     
     private func setupNavigation() {
         navigationItem.title = "Capture"
-        let title = BundleHelper.localizedString(key: "OpenCamera")
+        let title = Bundle.main.localizedString(forKey: "OpenCamera", value: nil, table: nil)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: title, style: .done, target: self, action: #selector(openCaptureTapped))
-    }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        let imageViewHeight = view.bounds.width * 500 / 1200
-        if let headerView = tableView.tableHeaderView as? UIImageView, headerView.bounds.height == imageViewHeight {
-            return
-        }
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: imageViewHeight))
-        imageView.image = UIImage(named: "TitleMapCapture")
-        tableView.tableHeaderView = imageView
     }
     
     // MARK: - Target
@@ -47,6 +37,7 @@ final class CaptureConfigViewController: UITableViewController {
     @IBAction func openCaptureTapped() {
         options.enableDebugLog = true
         let controller = ImageCaptureController(options: options, delegate: self)
+        controller.trackDelegate = self
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true, completion: nil)
     }
@@ -80,6 +71,23 @@ final class CaptureConfigViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 54
+    }
+}
+
+// MARK: - ImageKitDataTrackDelegate
+extension CaptureConfigViewController: ImageKitDataTrackDelegate {
+    
+    func dataTrack(page: AnyImagePage, state: AnyImagePageState) {
+        switch state {
+        case .enter:
+            print("[Data Track] ENTER Page: \(page.rawValue)")
+        case .leave:
+            print("[Data Track] LEAVE Page: \(page.rawValue)")
+        }
+    }
+    
+    func dataTrack(event: AnyImageEvent, userInfo: [AnyImageEventUserInfoKey: Any]) {
+        print("[Data Track] EVENT: \(event.rawValue), userInfo: \(userInfo)")
     }
 }
 

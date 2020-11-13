@@ -1,8 +1,37 @@
 # Release Notes
 
-- [0.9.0](https://github.com/AnyImageProject/AnyImageKit/blob/master/Documentation/RELEASE_NOTE.md#0.9.0)
+## 0.10.0
 
+### General
 
+- AnyImageKit is now adapt for the latest iPhone 12/12 Pro series devices.
+
+### New Features
+
+- Core
+  - Added `ImageKitDataTrackDelegate` for track page/event, supported page and events can be find [HERE](./DATA_TRACK.md).
+- Picker
+  - Picker now observe photo library changes on all supported iOS versions and loads library changes automatically.
+  - Added preselection mode, set `PickerOptionsInfo.preselectAssets: [String]` to enable preselection.
+
+### Resolved
+
+- Picker
+  - Unify the color of the toolbar and navigation bar on selection.
+  - Fixed an issue that picker reload photo library multiple times.
+  - Fixed an issue that lose progress when fetch video from iCloud in iOS 14.
+  - Now open the album will locate the current album.
+- Editor
+  - Fixed an issue that the crop box going black in iOS 11.
+  - When entering text in the editor, `return` key now shows as done instead of return.
+- Capture
+  - Fixed an issue that the focus frame going black in iOS 11.
+
+### Incompatible changes
+
+- Picker/Editor/Capture now has an empty initialization method `required init() ` and has changed the old method from `required init(options: ...) ` to `convenience init(options: ...) `, to make it easier to subclass related items.
+- The `delegate` access control of Picker/Editor/Capture changes to `open` instead of `open private(set)` and can be changed after initialization.
+- The `update(options: ...)` method has been added in Picker/Editor/Capture, which should call before present.
 
 ## 0.9.0
 
@@ -12,7 +41,7 @@
 - AnyImageKit use Swift Package Manager as dependency instead of Cocoapods.
 - AnyImageKit support Swift Package Manager.
 
-#### New Features
+### New Features
 
 - Picker
   - Adapt iOS 14 “Limited Photos Library” mode.

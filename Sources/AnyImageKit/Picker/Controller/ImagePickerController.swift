@@ -28,39 +28,28 @@ extension ImagePickerControllerDelegate {
 
 open class ImagePickerController: AnyImageNavigationController {
     
-    public private(set) weak var pickerDelegate: ImagePickerControllerDelegate?
+    open weak var pickerDelegate: ImagePickerControllerDelegate?
     
     private var containerSize: CGSize = .zero
     private var hiddenStatusBar: Bool = false
     private var didFinishSelect: Bool = false
+    private let workQueue = DispatchQueue.init(label: "org.AnyImageProject.AnyImageKit.DispatchQueue.ImagePickerController")
     
     private let manager: PickerManager = .init()
     
-    public required init(options: PickerOptionsInfo, delegate: ImagePickerControllerDelegate) {
-        enableDebugLog = options.enableDebugLog
-        // Note:
-        // Can't use `init(rootViewController:)` cause it will also call `init(nibName:,bundle:)` and reset `manager` even it's declaration by `let`
+    public required init() {
         super.init(nibName: nil, bundle: nil)
-        let newOptions = check(options: options)
-        self.addNotifications()
-        self.manager.options = newOptions
-        self.pickerDelegate = delegate
-        
-        let rootViewController = AssetPickerViewController(manager: manager)
-        rootViewController.delegate = self
-        self.viewControllers = [rootViewController]
-        
-        navigationBar.barTintColor = newOptions.theme.backgroundColor
-        navigationBar.tintColor = newOptions.theme.textColor
-        
-        #if ANYIMAGEKIT_ENABLE_EDITOR
-        ImageEditorCache.clearDiskCache()
-        #endif
     }
     
-    @available(*, deprecated, message: "init(coder:) has not been implemented")
-    required public init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    /// Init Picker
+    public convenience init(options: PickerOptionsInfo, delegate: ImagePickerControllerDelegate) {
+        self.init()
+        self.update(options: options)
+        self.pickerDelegate = delegate
+    }
+    
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
     }
     
     deinit {
@@ -69,6 +58,15 @@ open class ImagePickerController: AnyImageNavigationController {
         ImageEditorCache.clearDiskCache()
         #endif
         manager.clearAll()
+    }
+    
+    open override func viewDidLoad() {
+        super.viewDidLoad()
+        addNotifications()
+        
+        #if ANYIMAGEKIT_ENABLE_EDITOR
+        ImageEditorCache.clearDiskCache()
+        #endif
     }
     
     open override func viewDidLayoutSubviews() {
@@ -109,6 +107,26 @@ open class ImagePickerController: AnyImageNavigationController {
     }
 }
 
+extension ImagePickerController {
+    
+    open func update(options: PickerOptionsInfo) {
+        guard viewControllers.isEmpty || enableForceUpdate else {
+            return
+        }
+        enableDebugLog = options.enableDebugLog
+        manager.clearAll()
+        manager.options = check(options: options)
+        
+        let rootViewController = AssetPickerViewController(manager: manager)
+        rootViewController.delegate = self
+        rootViewController.trackObserver = self
+        viewControllers = [rootViewController]
+        
+        navigationBar.barTintColor = manager.options.theme.backgroundColor
+        navigationBar.tintColor = manager.options.theme.textColor
+    }
+}
+
 // MARK: - Private function
 extension ImagePickerController {
     
@@ -138,36 +156,61 @@ extension ImagePickerController {
         if options.selectLimit < 1 {
             options.selectLimit = 1
         }
+        #endif
+        
         if options.columnNumber < 3 {
             options.columnNumber = 3
         } else if options.columnNumber > 5 {
             options.columnNumber = 5
         }
-        #endif
+        
+        if options.selectLimit < options.preselectAssets.count {
+            options.preselectAssets.removeLast(options.preselectAssets.count-options.selectLimit)
+        }
         
         return options
     }
     
     private func checkData() {
         showWaitHUD()
-        DispatchQueue.global().async { [weak self] in
+        workQueue.async { [weak self] in
             guard let self = self else { return }
             let assets = self.manager.selectedAssets
             let isReady = assets.filter{ !$0.isReady }.isEmpty
             if !isReady && !assets.isEmpty { return }
-            self.saveEditPhoto(assets)
-            self.resizeImagesIfNeeded(assets)
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                hideHUD()
-                let result = PickerResult(assets: self.manager.selectedAssets, useOriginalImage: self.manager.useOriginalImage)
-                self.pickerDelegate?.imagePicker(self, didFinishPicking: result)
+            self.saveEditPhotos(assets) { newAssets in
+                self.resizeImagesIfNeeded(newAssets)
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    hideHUD()
+                    let result = PickerResult(assets: newAssets, useOriginalImage: self.manager.useOriginalImage)
+                    self.pickerDelegate?.imagePicker(self, didFinishPicking: result)
+                }
             }
         }
     }
     
-    private func saveEditPhoto(_ assets: [Asset]) {
-        assets.compactMap{ $0._images[.edited] }.forEach{ manager.savePhoto(image: $0) }
+    private func saveEditPhotos(_ assets: [Asset], completion: @escaping (([Asset]) -> Void)) {
+        var assets = assets
+        let selectOptions = manager.options.selectOptions
+        let group = DispatchGroup()
+        for (idx, asset) in assets.enumerated() {
+            guard let editedImage = asset._images[.edited] else { continue }
+            group.enter()
+            manager.savePhoto(image: editedImage) { result in
+                switch result {
+                case .success(let newAsset):
+                    assets[idx] = Asset(idx: asset.idx, asset: newAsset, selectOptions: selectOptions)
+                    assets[idx]._images[.initial] = editedImage
+                case .failure(let error):
+                    _print(error)
+                }
+                group.leave()
+            }
+        }
+        group.notify(queue: workQueue) {
+            completion(assets)
+        }
     }
     
     private func resizeImagesIfNeeded(_ assets: [Asset]) {

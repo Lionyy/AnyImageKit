@@ -9,12 +9,36 @@
 import UIKit
 
 final class HomeViewController: UITableViewController {
+    
+    private var versionLabel: UILabel = {
+        let view = UILabel(frame: .zero)
+        if let info = Bundle.main.infoDictionary, let version = info["CFBundleShortVersionString"] as? String {
+            view.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+            view.text = "v"+version
+        }
+        return view
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "AnyImageKit"
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        setupNavigation()
+        setupView()
+    }
+    
+    private func setupNavigation() {
+        navigationItem.title = "AnyImageKit"
+    }
+    
+    private func setupView() {
+        tableView.cellLayoutMarginsFollowReadableWidth = true
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
         tableView.tableFooterView = UIView(frame: .zero)
+        
+        view.addSubview(versionLabel)
+        versionLabel.snp.makeConstraints { maker in
+            maker.centerX.equalToSuperview()
+            maker.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-8)
+        }
     }
 
     // MARK: - Table view data source
@@ -28,7 +52,7 @@ final class HomeViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
         let rowType = Section.allCases[indexPath.section].allRowCase[indexPath.row]
         cell.textLabel?.text = rowType.title
         cell.accessoryType = .disclosureIndicator
@@ -51,7 +75,7 @@ extension HomeViewController {
     
     // MARK: - Section
     enum Section: Int, CaseIterable {
-        case module = 0
+        case module
         case application
         
         var title: String {
@@ -111,11 +135,14 @@ extension HomeViewController {
     // MARK: - ApplicationRowType
     enum ApplicationRowType: CaseIterable, HomeRowTypeRule {
         case avatarPicker
+        case preselectAsset
         
         var title: String {
             switch self {
             case .avatarPicker:
-                return "Avatar picker"
+                return "Avatar Picker"
+            case .preselectAsset:
+                return "Preselect Asset"
             }
         }
         
@@ -129,6 +156,8 @@ extension HomeViewController {
             switch self {
             case .avatarPicker:
                 return AvatarPickerController(style: style)
+            case .preselectAsset:
+                return PreselectAssetViewController()
             }
         }
     }

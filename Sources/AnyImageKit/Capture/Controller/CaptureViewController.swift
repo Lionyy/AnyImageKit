@@ -85,7 +85,7 @@ final class CaptureViewController: AnyImageViewController {
             self.permissionsChecked = true
             self.capture.startRunning()
             self.orientationUtil.startRunning()
-        }, canceled: { [weak self] in
+        }, canceled: { [weak self] _ in
             guard let self = self else { return }
             self.delegate?.captureDidCancel(self)
         })
@@ -154,7 +154,6 @@ extension CaptureViewController {
     @objc private func switchButtonTapped(_ sender: UIButton) {
         impactFeedback()
         toolView.hideButtons(animated: true)
-        previewView.hideToolMask(animated: true)
         previewView.transitionFlip(isIn: sender.isSelected, stopPreview: { [weak self] in
             guard let self = self else { return }
             self.capture.startSwitchCamera()
@@ -165,7 +164,6 @@ extension CaptureViewController {
         }) { [weak self] in
             guard let self = self else { return }
             self.toolView.showButtons(animated: true)
-            self.previewView.showToolMask(animated: true)
         }
         sender.isSelected.toggle()
     }
@@ -248,6 +246,7 @@ extension CaptureViewController: CaptureDelegate {
     }
     
     func capture(_ capture: Capture, didOutput photoData: Data, fileType: FileType) {
+        trackObserver?.track(event: .capturePhoto, userInfo: [:])
         guard UIDevice.current.userInterfaceIdiom == .phone else {
             if let url = FileHelper.write(photoData: photoData, fileType: fileType) {
                 toolView.captureButton.stopProcessing()
@@ -260,9 +259,9 @@ extension CaptureViewController: CaptureDelegate {
         guard let image = UIImage(data: photoData) else { return }
         var editorOptions = options.editorPhotoOptions
         editorOptions.enableDebugLog = options.enableDebugLog
-        let editor = ImageEditorController(photo: image, options: editorOptions, delegate: self)
-        editor.modalPresentationStyle = .fullScreen
-        present(editor, animated: false) { [weak self] in
+        let controller = ImageEditorController(photo: image, options: editorOptions, delegate: self)
+        controller.modalPresentationStyle = .fullScreen
+        present(controller, animated: false) { [weak self] in
             guard let self = self else { return }
             self.toolView.captureButton.stopProcessing()
             self.capture.stopRunning()
@@ -290,6 +289,7 @@ extension CaptureViewController: CaptureDelegate {
 extension CaptureViewController: RecorderDelegate {
     
     func recorder(_ recorder: Recorder, didCreateMovieFileAt url: URL, thumbnail: UIImage?) {
+        trackObserver?.track(event: .captureVideo, userInfo: [:])
         toolView.showButtons(animated: true)
         previewView.showToolMask(animated: true)
         
@@ -302,9 +302,9 @@ extension CaptureViewController: RecorderDelegate {
         #if ANYIMAGEKIT_ENABLE_EDITOR
         var editorOptions = options.editorVideoOptions
         editorOptions.enableDebugLog = options.enableDebugLog
-        let editor = ImageEditorController(video: url, placeholderImage: thumbnail, options: editorOptions, delegate: self)
-        editor.modalPresentationStyle = .fullScreen
-        present(editor, animated: false) { [weak self] in
+        let controller = ImageEditorController(video: url, placeholderImage: thumbnail, options: editorOptions, delegate: self)
+        controller.modalPresentationStyle = .fullScreen
+        present(controller, animated: false) { [weak self] in
             guard let self = self else { return }
             self.toolView.captureButton.stopProcessing()
             self.capture.stopRunning()

@@ -3,7 +3,7 @@
 //  AnyImageKit
 //
 //  Created by 蒋惠 on 2019/9/17.
-//  Copyright © 2019 AnyImageProject.org. All rights reserved.
+//  Copyright © 2020 AnyImageProject.org. All rights reserved.
 //
 
 import UIKit
@@ -15,7 +15,7 @@ final class PickerToolBar: UIView {
     private lazy var backgroundView: UIVisualEffectView = {
         let effect = UIBlurEffect(style: .light)
         let view = UIVisualEffectView(effect: effect)
-        view.contentView.backgroundColor = options.theme.backgroundColor.withAlphaComponent(0.7)
+        view.contentView.backgroundColor = options.theme.toolBarColor.withAlphaComponent(0.7)
         return view
     }()
     
@@ -57,7 +57,7 @@ final class PickerToolBar: UIView {
         return view
     }()
     
-    let limitedViewHeight: CGFloat = 64
+    let limitedViewHeight: CGFloat = 56
     let toolBarHeight: CGFloat = 56
     
     private let style: Style
@@ -82,13 +82,13 @@ final class PickerToolBar: UIView {
             backgroundView.snp.makeConstraints { maker in
                 maker.edges.equalToSuperview()
             }
-            permissionLimitedView.snp.makeConstraints { (maker) in
+            permissionLimitedView.snp.makeConstraints { maker in
                 maker.top.left.right.equalToSuperview()
                 maker.height.equalTo(limitedViewHeight)
             }
             leftButton.setTitle(BundleHelper.pickerLocalizedString(key: "Preview"), for: .normal)
         case .preview:
-            backgroundColor = options.theme.toolBarColor
+            backgroundColor = options.theme.toolBarColor.withAlphaComponent(0.95)
             leftButton.setTitle(BundleHelper.pickerLocalizedString(key: "Edit"), for: .normal)
         }
         
@@ -130,7 +130,7 @@ extension PickerToolBar {
     
     func showLimitedView() {
         permissionLimitedView.isHidden = false
-        contentView.snp.updateConstraints { (update) in
+        contentView.snp.updateConstraints { update in
             update.top.equalToSuperview().offset(limitedViewHeight)
         }
     }

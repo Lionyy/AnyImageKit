@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name = 'AnyImageKit'
-    s.version = '0.9.0'
+    s.version = '0.10.0'
     s.license = 'MIT'
     s.summary = 'AnyImageKit is a toolbox for picking and editing photos.'
     s.homepage = 'https://github.com/AnyImageProject/AnyImageKit'
@@ -25,6 +25,7 @@ Pod::Spec.new do |s|
         picker.source_files = 'Sources/AnyImageKit/Picker/**/*.swift'
         picker.resources = 'Sources/AnyImageKit/Resources/Picker/**/*'
         picker.dependency 'AnyImageKit/Core'
+        picker.pod_target_xcconfig = { 'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => 'ANYIMAGEKIT_ENABLE_PICKER' }
     end
     
     s.subspec 'Editor' do |editor|

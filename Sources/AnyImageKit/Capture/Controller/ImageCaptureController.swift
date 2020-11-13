@@ -24,29 +24,22 @@ extension ImageCaptureControllerDelegate {
 
 open class ImageCaptureController: AnyImageNavigationController {
     
-    open private(set) weak var captureDelegate: ImageCaptureControllerDelegate?
+    open weak var captureDelegate: ImageCaptureControllerDelegate?
     
-    /// Init capture controller
-    /// - Note: iPadOS will use `UIImagePickerController` instead.
-    public required init(options: CaptureOptionsInfo, delegate: ImageCaptureControllerDelegate) {
-        enableDebugLog = options.enableDebugLog
+    public required init() {
         super.init(nibName: nil, bundle: nil)
-        self.captureDelegate = delegate
-        
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let rootViewController = PadCaptureViewController(options: options)
-            rootViewController.delegate = self
-            self.viewControllers = [rootViewController]
-        } else {
-            let rootViewController = CaptureViewController(options: options)
-            rootViewController.delegate = self
-            self.viewControllers = [rootViewController]
-        }
     }
     
-    @available(*, deprecated, message: "init(coder:) has not been implemented")
-    required public init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    /// Init Capture
+    /// - Note: iPadOS will use `UIImagePickerController` instead.
+    public convenience init(options: CaptureOptionsInfo, delegate: ImageCaptureControllerDelegate) {
+        self.init()
+        self.update(options: options)
+        self.captureDelegate = delegate
+    }
+    
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
     }
     
     open override func dismiss(animated flag: Bool, completion: (() -> Void)?) {
@@ -68,6 +61,27 @@ open class ImageCaptureController: AnyImageNavigationController {
     
     open override var prefersStatusBarHidden: Bool {
         return true
+    }
+}
+
+extension ImageCaptureController {
+    
+    open func update(options: CaptureOptionsInfo) {
+        guard viewControllers.isEmpty || enableForceUpdate else {
+            return
+        }
+        enableDebugLog = options.enableDebugLog
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let rootViewController = PadCaptureViewController(options: options)
+            rootViewController.delegate = self
+            rootViewController.trackObserver = self
+            viewControllers = [rootViewController]
+        } else {
+            let rootViewController = CaptureViewController(options: options)
+            rootViewController.delegate = self
+            rootViewController.trackObserver = self
+            viewControllers = [rootViewController]
+        }
     }
 }
  

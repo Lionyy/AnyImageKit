@@ -1,12 +1,41 @@
 # 更新日志
 
-- [0.9.0](https://github.com/AnyImageProject/AnyImageKit/blob/master/Documentation/RELEASE_NOTE_CN.md#0.9.0)
+## 0.10.0
 
+### 通用
 
+- 已适配最新的 iPhone 12/12 Pro 系列设备。
+
+### 新增
+
+- Core
+  - 添加 `ImageKitDataTrackDelegate` 用以数据打点，已支持的页面和事件可以在 [这里](./DATA_TRACK.md) 找到。
+- Picker
+  - Picker 现在会在所有支持的 iOS 版本上检测相册的变化，自动加载新增/删除变更。
+  - 新增预选模式，设置 `PickerOptionsInfo.preselectAssets: [String]` 以实现预选。
+
+### 修复
+
+- Picker
+  - 统一选择时工具栏与导航栏的颜色。
+  - 更好的兼容 iOS 14 “Limited Photos Library” 模式。
+  - 修复 iOS 14 中，视频加载的问题。
+  - 打开相册选择时，现在会定位到当前的相册。
+- Editor
+  - 修复 iOS 11 中，裁剪框变黑的问题。
+  - 现在在编辑器中输入文字时，return 会显示为完成，而非换行。
+- Capture
+  - 修复 iOS 11 中，对焦框变黑的问题。
+
+### 不兼容变更
+
+- Picker/Editor/Capture 均新增了 `required init()` 的空初始化方法，并将原来的 `required init(options: ...)` 变更为 `convenience init(options: ...)`，方便子类化相关方法以配合老项目接入，已接入的项目保持不变。
+- Picker/Editor/Capture 的 `delegate` 均已开放，允许在初始化后变更。
+- Picker/Editor/Capture 均新增了 `update(options: ...)` 方法，在 present 前调用。
 
 ## 0.9.0
 
-### 构建
+### 通用
 
 - 项目构建从 Xcode 11 升级到 Xcode 12。
 - 项目第三方依赖从 Cocoapods 变更为 Swift Package Manager。
