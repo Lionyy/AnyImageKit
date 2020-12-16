@@ -15,7 +15,6 @@ public protocol ImagePickerControllerDelegate: AnyObject {
     
     /// 添加回调显示提示弹窗
     func imagePickerShouldSelectedAsset(_ picker: ImagePickerController, asset: Asset, isUpToLimit: Bool) -> Bool
-    func imagePicker(_ picker: ImagePickerController, didFinishPicking assets: [Asset], useOriginalImage: Bool)
     func imagePicker(_ picker: ImagePickerController, didFinishPicking result: PickerResult)
 }
 
