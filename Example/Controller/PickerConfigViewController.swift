@@ -287,11 +287,11 @@ extension PickerConfigViewController {
             case .config:
                 return "Options"
             case .editor:
-                return "Editor options"
+                return "Editor Options"
             case .capture:
-                return "Capture options"
+                return "Capture Options"
             case .other:
-                return "Other options"
+                return "UIViewController Options"
             }
         }
         

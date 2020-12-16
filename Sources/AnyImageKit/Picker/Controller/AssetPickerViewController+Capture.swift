@@ -20,7 +20,6 @@ extension AssetPickerViewController {
         var options = manager.options.captureOptions
         options.enableDebugLog = manager.options.enableDebugLog
         let controller = ImageCaptureController(options: options, delegate: self)
-        controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true, completion: nil)
         #else
         let alert = UIAlertController(title: "Error", message: "Camera is unavailable on simulator", preferredStyle: .alert)
@@ -75,6 +74,7 @@ extension AssetPickerViewController {
         if addSuccess {
             /// 拍照结束后，如果 limit=1 直接返回
             if manager.options.selectLimit == 1 {
+                stopReloadAlbum = true
                 delegate?.assetPickerDidFinishPicking(self)
             }
         }

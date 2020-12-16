@@ -37,14 +37,14 @@
 - [ ] Multiple platform support
     - [x] iOS
     - [x] iPadOS
-    - [ ] Mac Catalyst ( Technical Preview, Not support in editor. Remove from support as Xcode 12.0 can't support Mac Catalyst 14.0 features. )
+    - [x] Mac Catalyst ( Technical Preview, Not support in editor.)
     - [ ] macOS
     - [ ] tvOS
 
 ## Requirements
 
 - iOS 10.0+
-- Xcode 12.0+
+- Xcode 12.2+
 - Swift 5.3+
 
 ## Installation
@@ -55,7 +55,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/AnyImageProject/AnyImageKit.git", .upToNextMajor(from: "0.9.0"))
+    .package(url: "https://github.com/AnyImageProject/AnyImageKit.git", .upToNextMajor(from: "0.11.0"))
 ]
 ```
 
@@ -129,9 +129,11 @@ extension ViewController: ImagePickerControllerDelegate {
 
 ## Release Notes
 
-* [v0.10.0](https://github.com/AnyImageProject/AnyImageKit/blob/master/Documentation/RELEASE_NOTE.md#0100): Release on 2020-11-03
-
-* [v0.9.0](https://github.com/AnyImageProject/AnyImageKit/blob/master/Documentation/RELEASE_NOTE.md#090): Release on 2020-10-09
+| Version | Release Date | Xcode | Swift | iOS |
+| ---- | ----  | ---- | ---- | ---- |
+| [v0.11.0](https://github.com/AnyImageProject/AnyImageKit/blob/master/Documentation/RELEASE_NOTE.md#0110) | 2020-12-10 | 12.2 | 5.3 | 10.0+ |
+| [v0.10.0](https://github.com/AnyImageProject/AnyImageKit/blob/master/Documentation/RELEASE_NOTE.md#0100) | 2020-11-03 | 12.1 | 5.3 | 10.0+ |
+| [v0.9.0](https://github.com/AnyImageProject/AnyImageKit/blob/master/Documentation/RELEASE_NOTE.md#090) | 2020-10-09 | 12.0 | 5.3 | 10.0+ |
 
 ## License
 
