@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-    s.name = 'RLAnyImageKit'
+    s.name = 'AnyImageKit'
     s.version = '0.11.0'
     s.license = 'MIT'
     s.summary = 'AnyImageKit is a toolbox for picking and editing photos.'

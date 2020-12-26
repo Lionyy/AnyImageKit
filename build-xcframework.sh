@@ -1,7 +1,7 @@
 #!/bin/bash
 
 projectName="AnyImageKit"
-version="0.10.0"
+version="0.11.0"
 
 deleteLastSameBuild() {
     rm -r "Products/${version}"
@@ -12,7 +12,7 @@ buildFramework() {
     
     # Device slice.
     xcodebuild archive \
-    -project "${projectName}.xcodeproj" \
+    -workspace "${projectName}.xcworkspace" \
     -scheme "${projectName}" \
     -configuration Release \
     -destination "generic/platform=iOS" \
@@ -22,7 +22,7 @@ buildFramework() {
 
     # Simulator slice.
     xcodebuild archive \
-    -project "$projectName.xcodeproj" \
+    -workspace "$projectName.xcworkspace" \
     -scheme "$projectName" \
     -configuration Release \
     -destination "generic/platform=iOS Simulator" \
