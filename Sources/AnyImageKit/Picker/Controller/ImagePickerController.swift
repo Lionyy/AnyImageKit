@@ -12,9 +12,6 @@ import SnapKit
 public protocol ImagePickerControllerDelegate: AnyObject {
     
     func imagePickerDidCancel(_ picker: ImagePickerController)
-    
-    /// 添加回调显示提示弹窗
-    func imagePickerShouldSelectedAsset(_ picker: ImagePickerController, asset: Asset, isUpToLimit: Bool) -> Bool
     func imagePicker(_ picker: ImagePickerController, didFinishPicking result: PickerResult)
 }
 
@@ -190,6 +187,11 @@ extension ImagePickerController {
     }
     
     private func saveEditPhotos(_ assets: [Asset], completion: @escaping (([Asset]) -> Void)) {
+        #if ANYIMAGEKIT_ENABLE_EDITOR
+        guard manager.options.saveEditedAsset else {
+            completion(assets)
+            return
+        }
         var assets = assets
         let selectOptions = manager.options.selectOptions
         let group = DispatchGroup()
@@ -210,6 +212,9 @@ extension ImagePickerController {
         group.notify(queue: workQueue) {
             completion(assets)
         }
+        #else
+        completion(assets)
+        #endif
     }
     
     private func resizeImagesIfNeeded(_ assets: [Asset]) {
@@ -240,12 +245,7 @@ extension ImagePickerController: AssetPickerViewControllerDelegate {
     func assetPickerDidCancel(_ picker: AssetPickerViewController) {
         pickerDelegate?.imagePickerDidCancel(self)
     }
-    
-    /// 添加回调显示提示弹窗
-    func assetPickerShouldSelectedAsset(_ picker: AssetPickerViewController, asset: Asset, isUpToLimit: Bool) -> Bool {
-        return pickerDelegate?.imagePickerShouldSelectedAsset(self, asset: asset, isUpToLimit: isUpToLimit) ?? true
-    }
-    
+
     func assetPickerDidFinishPicking(_ controller: AssetPickerViewController) {
         didFinishSelect = true
         manager.resynchronizeAsset()

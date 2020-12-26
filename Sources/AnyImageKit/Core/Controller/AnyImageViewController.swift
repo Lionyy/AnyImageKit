@@ -39,9 +39,14 @@ class AnyImageViewController: UIViewController {
 extension AnyImageViewController {
     
     func showAlert(message: String) {
-        let alert = UIAlertController(title: BundleHelper.coreLocalizedString(key: "Alert"), message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: BundleHelper.coreLocalizedString(key: "OK"), style: .default, handler: nil))
-        present(alert, animated: true, completion: nil)
+        if let delegate = CustomHelper.defaultHelper.delegate {
+            delegate.showAlert(message: BundleHelper.coreLocalizedString(key: "Alert"),
+                               actionTitle: BundleHelper.coreLocalizedString(key: "OK"))
+        }else {
+            let alert = UIAlertController(title: BundleHelper.coreLocalizedString(key: "Alert"), message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: BundleHelper.coreLocalizedString(key: "OK"), style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
+        }
     }
 }
 
